@@ -11,7 +11,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 
-if [ $1 = "clear" ]; then
+if [ "$1" = "clear" ]; then
 	k=$(keyctl request user bw) && keyctl unlink "$k" 
 	bw lock
 	printf "${GREEN}Session cleared and vault locked${NC}\n" >&2 
