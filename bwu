@@ -1,0 +1,39 @@
+#!/bin/sh
+
+#------BitWarden Utilitiy------#
+
+# wrapper script to store bw session value into linux keychain with timeout
+# key is in keyring, can be read, and bw unlock check passes
+timeout=43200	#how long to retain session key for in seconds 
+
+GREEN='\033[0;92m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+
+if [ $1 = "clear" ]; then
+	k=$(keyctl request user bw) && keyctl unlink "$k" 
+	bw lock
+	printf "${GREEN}Session cleared and vault locked${NC}\n" >&2 
+	exit 0
+fi
+
+
+#get key value for session, save into k
+#retrieve session value into s
+if k=$(keyctl request user bw) && s=$(keyctl pipe "$k"); then
+	printf "${GREEN}Unlocked vault with session key${NC}\n" >&2 
+	BW_SESSION=$s exec bw "$@"
+	exit 0
+else
+	#could not get session id
+	#attempt to unlock, if succssful store session value and execute commad
+	if s="$(FORCE_COLOR=3 bw unlock --raw)"; then
+        	k=$(keyctl add user bw "$s" @u)
+        	keyctl timeout "$k" "$timeout"		#set timout
+			timeoutHrs=$(echo "scale=1; "$timeout"/3600" | bc)
+			printf "${GREEN}Session key saved for %0.1f hours${NC}\n" "$timeoutHrs" >&2 
+        	BW_SESSION=$s exec bw "$@"
+		exit 0
+	fi
+fi
