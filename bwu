@@ -30,8 +30,8 @@ else
 	if s="$(FORCE_COLOR=3 bw unlock --raw)"; then
         	k=$(keyctl add user bw "$s" @u)
         	keyctl timeout "$k" "$timeout"		#set timout
-			timeoutHrs=$(echo "scale=1; "$timeout"/3600" | bc)
-			printf "${GREEN}Session key saved for %0.1f hours${NC}\n" "$timeoutHrs" >&2 
+		timeoutHrs=$(echo "scale=1; "$timeout"/3600" | bc)
+		printf "${GREEN}Session key saved for %0.1f hours${NC}\n" "$timeoutHrs" >&2 
         	BW_SESSION=$s exec bw "$@"
 	fi
 fi
