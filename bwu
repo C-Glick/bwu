@@ -24,7 +24,6 @@ fi
 if k=$(keyctl request user bw) && s=$(keyctl pipe "$k"); then
 	printf "${GREEN}Unlocked vault with session key${NC}\n" >&2 
 	BW_SESSION=$s exec bw "$@"
-	exit 0
 else
 	#could not get session id
 	#attempt to unlock, if succssful store session value and execute commad
@@ -34,6 +33,5 @@ else
 			timeoutHrs=$(echo "scale=1; "$timeout"/3600" | bc)
 			printf "${GREEN}Session key saved for %0.1f hours${NC}\n" "$timeoutHrs" >&2 
         	BW_SESSION=$s exec bw "$@"
-		exit 0
 	fi
 fi
